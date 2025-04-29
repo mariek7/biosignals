@@ -37,14 +37,12 @@ async def get_bitalino_data(request: BITalinoRequest):
         print(f"BITalino: {device}")
         # start device
         device.start([0, 1, 2, 3, 4, 5])  # adjust channels needed
-        
         # read data
         nSamples = request.samplingRate * request.recordingTime
         dataAcquired = device.read(nSamples)
         print(f"Data acquired: {dataAcquired}")
         print(dataAcquired.shape)
         print(dataAcquired.type)
-        
         # stop device after data read
         device.stop()
         device.close()
