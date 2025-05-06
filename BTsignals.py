@@ -14,9 +14,10 @@ class BITalinoRequest(BaseModel):
 #async def get_bitalino_data(params: BITalinoRequest):
 async def bitalino_data(macAddress: str, samplingRate: int, recordingTime: int):
     device = BITalino() # initialize BITalino instance
-    device.analogChannels = [0, 1, 2]  # Set channels you want to read (A0, A1, A2)
+    #device.analogChannels = [0, 1, 2]  # Set channels you want to read (A0, A1, A2...)
+    device.analogChannels = [0, 1, 2, 3, 4, 5]
     device.open(macAddress=macAddress, SamplingRate=samplingRate)
-    device.start([0, 1, 2]) # start the device with the analog channels
+    device.start()
     nSamples = samplingRate * recordingTime  # total samples to read based on time and rate
     data = device.read(nSamples=nSamples) # read data for given time
 
@@ -36,7 +37,8 @@ async def get_bitalino_data(request: BITalinoRequest):
         device.open(request.macAddress, request.samplingRate)
         print(f"BITalino: {device}")
         # start device
-        device.start([0, 1, 2, 3, 4, 5])  # adjust channels needed
+        #device.start([0, 1, 2, 3, 4, 5])  # adjust channels needed
+        device.start()
         # read data
         nSamples = request.samplingRate * request.recordingTime
         dataAcquired = device.read(nSamples)

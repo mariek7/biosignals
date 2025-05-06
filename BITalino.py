@@ -118,7 +118,7 @@ class BITalino:
             else:
                 Data += reader(1)  # Continue reading until data is ready
                 Data = Data[1:]  # remove the first byte if it's invalid, check if this is correct!
-                print("ERROR DECODING")
+                print("Error decoding")
 
         return dataAcquired
 
@@ -132,8 +132,8 @@ class BITalino:
         
         nSamples = len(data) // number_bytes
         res = np.zeros(((nAnalog + 5), nSamples))
-        print(res.shape)
-        print(res)
+        #print(res.shape)
+        #print(res)
         
         j, x0, x1, x2, x3, out, inp, col, line = 0, 0, 0, 0, 0, 0, 0, 0, 0
         encode01 = 0x01
@@ -145,7 +145,7 @@ class BITalino:
         encodeF0 = 0xF0
         encode0F = 0x0F
         
-        #CRC check
+        # 
         CRC = data[j + number_bytes - 1] & encode0F
         for byte in range(number_bytes):
             for bit in range(7, -1, -1):
@@ -165,8 +165,7 @@ class BITalino:
                     res[line, col] = value
                     line += 1
 
-                # Sequence number
-                store((data[j + number_bytes - 1] >> 4) & 0x0F)
+                store((data[j + number_bytes - 1] >> 4) & 0x0F) # Sequence number
 
                 # Digital channels D0 to D3 from a single byte
                 digital_byte = data[j + number_bytes - 2]
