@@ -1,6 +1,8 @@
-from fastapi import FastAPI # $ pip install fastapi uvicorn
+from fastapi import FastAPI, HTTPException # $ pip install fastapi uvicorn
 from pydantic import BaseModel
-from BITalino import BITalino  # custom BITalino class from BITalino.py
+import logging
+import traceback
+from BITalino import BITalino  # BITalino.py
 
 app = FastAPI()
 
@@ -9,24 +11,36 @@ class BITalinoRequest(BaseModel):
     samplingRate: int
     recordingTime: int
 
-# GET from /bitalino-get/?macAddress=<mac-address>&samplingRate=<sr>&recordingTime=<rt>
+# GET from /bitalino-get/?macAddress=[mac-address]&samplingRate=[sr]&recordingTime=[rt]
 @app.get("/bitalino-get/")
-#async def get_bitalino_data(params: BITalinoRequest):
 async def bitalino_data(macAddress: str, samplingRate: int, recordingTime: int):
-    device = BITalino() # initialize BITalino instance
-    #device.analogChannels = [0, 1, 2]  # Set channels you want to read (A0, A1, A2...)
-    device.analogChannels = [0, 1, 2, 3, 4, 5]
-    device.open(macAddress=macAddress, SamplingRate=samplingRate)
-    device.start()
-    nSamples = samplingRate * recordingTime  # total samples to read based on time and rate
-    data = device.read(nSamples=nSamples) # read data for given time
+    try:
+        device = BITalino()
+        #device.analogChannels = [0, 1, 2]  # Set channels you want to read (A0, A1, A2...)
+        #device.analogChannels = [0, 1, 2, 3, 4, 5] thats default
+        device.open(macAddress=macAddress, SamplingRate=samplingRate)
+        device.start()
+        nSamples = samplingRate * recordingTime  # total samples to read based on time and rate
+        data = device.read(nSamples=nSamples) # read data for given time
 
-    return {
-        "macAddress": macAddress,
-        "samplingRate": samplingRate,
-        "recordingTime": recordingTime,
-        "data": data.tolist()  # Convert the NumPy array to a list for JSON serialization
-    }
+        #device.stop()
+        #device.close()
+
+        return {
+            "macAddress": macAddress,
+            "samplingRate": samplingRate,
+            "recordingTime": recordingTime,
+            "data": data.tolist()  # Convert the NumPy array to a list for JSON serialization
+        }
+    
+    except Exception as e:
+        logging.error("BITalino error:\n%s", traceback.format_exc())
+        #raise HTTPException(status_code=500, detail=f"BITalino connection failed: {str(e)}")
+        return {
+            "error": "BITalino connection failed",
+            "detail": str(e)
+        }
+
 
 # POST to get data from /bitalino-data/
 @app.post("/bitalino-data/")

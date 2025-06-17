@@ -1,6 +1,11 @@
 __pycache__/
 .env
+data_files/
+data_recording_*
+connect_bitalino.sh
 # tests
 biosig_test_get.rest
 biosig_test_post.rest
 dielot.txt
+MainWindow.py
+saved_signal.txt
